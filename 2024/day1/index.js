@@ -8,6 +8,8 @@ import moment from 'moment';
 const left = [];
 const right = [];
 const joined = [];
+var counter = new Map();
+var counterTotal = 0;
 var total = 0;
 
 async function processFile(path, processor,) {
@@ -35,18 +37,43 @@ await processFile('./left-list.txt', leftProcessor);
 await processFile('./right-list.txt', rightProcessor);
 
 var index = 0;
+
+function updateCounter(item, list){
+    if(!list.includes(item)) {return;};
+    if (counter.get(item) === undefined) {
+        //count amount of times in right list
+        var countInList = 0;
+        list.forEach((itemInList) => {if (itemInList === item) countInList++});
+        counter.set(item, {count: countInList});console.log(`First timer: ${item}`);
+        return
+    };
+}
+
 right.sort();
 left.sort().forEach((t) => 
     {
+        //count
         console.log('left: ' + t); 
         joined.push({left: t, right: right[index], distance: 0});
         index++;
+
+        //search in right
+        updateCounter(t, right)
     }
 );
+
 
 joined.forEach((t) => {
     t.distance = Math.abs(t.left - t.right);
     total += t.distance;
 });
 
-console.log(total);
+console.log("Total: " + total);
+
+
+counter.forEach((value, key) => {
+    console.log(`key: ${key} \nvalue: ${value.count}`);
+    counterTotal += Number.parseInt(key) * Number.parseInt(value.count);
+});
+
+console.log(counterTotal);
